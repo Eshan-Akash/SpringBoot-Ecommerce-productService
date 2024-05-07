@@ -14,7 +14,7 @@ import java.util.List;
 @RequestMapping("/api/v1/products")
 public class ProductController {
     private ProductService productService;
-    public ProductController(@Qualifier("fakeStoreProductService") ProductService productService) {
+    public ProductController(@Qualifier("selfProductServiceImpl") ProductService productService) {
         this.productService = productService;
     }
 
@@ -24,7 +24,7 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public GenericProductDto getProductById(@PathVariable("id") int id) throws NotFoundException {
+    public GenericProductDto getProductById(@PathVariable("id") String id) throws NotFoundException {
         // Get product by id
         return productService.getProductById(id);
     }
@@ -35,13 +35,13 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    public GenericProductDto updateProductById(@PathVariable("id") int id, @RequestBody GenericProductDto product) throws NotFoundException {
+    public GenericProductDto updateProductById(@PathVariable("id") String id, @RequestBody GenericProductDto product) throws NotFoundException {
         // Update a product
         return productService.updateProduct(id, product);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<GenericProductDto> deleteProductById(@PathVariable Long id) throws NotFoundException {
+    public ResponseEntity<GenericProductDto> deleteProductById(@PathVariable String id) throws NotFoundException {
         return new ResponseEntity<>(productService.deleteProduct(id),
                 HttpStatus.OK);
     }

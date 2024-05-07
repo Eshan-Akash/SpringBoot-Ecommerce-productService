@@ -1,5 +1,6 @@
 package dev.eshan.productservice.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Data;
