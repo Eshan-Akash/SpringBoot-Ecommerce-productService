@@ -1,6 +1,7 @@
 package dev.eshan.productservice.service;
 
 import dev.eshan.productservice.dtos.FakeStoreProductDto;
+import dev.eshan.productservice.dtos.GenericCategoryDto;
 import dev.eshan.productservice.dtos.GenericProductDto;
 import dev.eshan.productservice.exceptions.NotFoundException;
 import dev.eshan.productservice.model.Category;
@@ -36,6 +37,11 @@ public class FakeStoreProductService implements ProductService {
     }
 
     @Override
+    public List<GenericProductDto> getProductsInCategory(String categoryId) {
+        return null;
+    }
+
+    @Override
     public GenericProductDto createProduct(GenericProductDto genericProductDto) {
         return convertFakeStoreProductDtoToGenericProductDto(fakeStoreProductServiceClient.createProduct(genericProductDto));
     }
@@ -59,9 +65,7 @@ public class FakeStoreProductService implements ProductService {
             price.setPrice(fakeStoreProductDto.getPrice());
             genericProductDto.setPrice(price);
             genericProductDto.setDescription(fakeStoreProductDto.getDescription());
-            Category category = new Category();
-            category.setName(fakeStoreProductDto.getCategory());
-            genericProductDto.setCategory(category);
+            genericProductDto.setCategoryDto(GenericCategoryDto.builder().name(fakeStoreProductDto.getCategory()).build());
             genericProductDto.setImage(fakeStoreProductDto.getImage());
         }
         return genericProductDto;

@@ -1,7 +1,9 @@
 package dev.eshan.productservice.controller;
 
 import dev.eshan.productservice.dtos.GenericProductDto;
+import dev.eshan.productservice.dtos.GetProductTitlesRequestDto;
 import dev.eshan.productservice.exceptions.NotFoundException;
+import dev.eshan.productservice.service.CategoryService;
 import dev.eshan.productservice.service.ProductService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
@@ -14,8 +16,12 @@ import java.util.List;
 @RequestMapping("/api/v1/products")
 public class ProductController {
     private ProductService productService;
-    public ProductController(@Qualifier("selfProductServiceImpl") ProductService productService) {
+    private CategoryService categoryService;
+
+    public ProductController(@Qualifier("selfProductServiceImpl") ProductService productService,
+                             CategoryService categoryService) {
         this.productService = productService;
+        this.categoryService = categoryService;
     }
 
     @GetMapping("/")
@@ -27,6 +33,17 @@ public class ProductController {
     public GenericProductDto getProductById(@PathVariable("id") String id) throws NotFoundException {
         // Get product by id
         return productService.getProductById(id);
+    }
+
+    @GetMapping("/category/{id}")
+    public List<GenericProductDto> getProductsInCategory(@PathVariable("id") String id) throws NotFoundException {
+        return productService.getProductsInCategory(id);
+    }
+
+    @GetMapping("/titles/")
+    public List<String> getProductTitles(@RequestBody GetProductTitlesRequestDto requestDto) {
+        List<String> ids = requestDto.getIds();
+        return categoryService.getProductTitles(ids);
     }
 
     @PostMapping("/")

@@ -13,7 +13,7 @@ public class GenericProductDto {
     String id;
     String title;
     String description;
-    Category category;
+    GenericCategoryDto categoryDto;
     String image;
     Price price;
 }

@@ -58,7 +58,7 @@ public class FakeStoreProductServiceClient implements ThirdPartyProductServiceCl
         fakeStoreProductDto.setTitle(genericProductDto.getTitle());
         fakeStoreProductDto.setPrice(genericProductDto.getPrice().getPrice());
         fakeStoreProductDto.setDescription(genericProductDto.getDescription());
-        fakeStoreProductDto.setCategory(genericProductDto.getCategory().getName());
+        fakeStoreProductDto.setCategory(genericProductDto.getCategoryDto().getName());
         fakeStoreProductDto.setImage(genericProductDto.getImage());
 
         RestTemplate restTemplate = restTemplateBuilder.build();

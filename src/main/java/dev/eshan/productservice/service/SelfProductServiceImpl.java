@@ -1,5 +1,6 @@
 package dev.eshan.productservice.service;
 
+import dev.eshan.productservice.dtos.GenericCategoryDto;
 import dev.eshan.productservice.dtos.GenericProductDto;
 import dev.eshan.productservice.exceptions.NotFoundException;
 import dev.eshan.productservice.model.Category;
@@ -34,10 +35,13 @@ public class SelfProductServiceImpl implements ProductService {
                 genericProductDto.setId(product.getId());
                 genericProductDto.setTitle(product.getTitle());
                 genericProductDto.setDescription(product.getDescription());
-                genericProductDto.setCategory(product.getCategory());
                 genericProductDto.setImage(product.getImage());
                 genericProductDto.setPrice(product.getPrice());
                 genericProductDtos.add(genericProductDto);
+                genericProductDto.setCategoryDto(GenericCategoryDto.builder()
+                        .id(product.getCategory().getId())
+                        .name(product.getCategory().getName())
+                        .build());
             }
         }
         return genericProductDtos;
@@ -46,6 +50,30 @@ public class SelfProductServiceImpl implements ProductService {
     @Override
     public GenericProductDto getProductById(String id) throws NotFoundException {
         return doSomething(id);
+    }
+
+    @Override
+    public List<GenericProductDto> getProductsInCategory(String categoryId) throws NotFoundException {
+        Optional<Category> categoryOptional = categoryRepository.findById(categoryId);
+        if (categoryOptional.isEmpty()) {
+            throw new NotFoundException("Category not found by id: " + categoryId);
+        }
+        Category category = categoryOptional.get();
+        List<GenericProductDto> genericProductDtos = new ArrayList<>();
+        category.getProducts().forEach(product -> {
+            GenericProductDto genericProductDto = new GenericProductDto();
+            genericProductDto.setId(product.getId());
+            genericProductDto.setTitle(product.getTitle());
+            genericProductDto.setDescription(product.getDescription());
+            genericProductDto.setImage(product.getImage());
+            genericProductDto.setPrice(product.getPrice());
+            genericProductDto.setCategoryDto(GenericCategoryDto.builder()
+                    .id(product.getCategory().getId())
+                    .name(product.getCategory().getName())
+                    .build());
+            genericProductDtos.add(genericProductDto);
+        });
+        return genericProductDtos;
     }
 
     @Transactional
@@ -62,11 +90,11 @@ public class SelfProductServiceImpl implements ProductService {
 
         Optional<Category> category = categoryRepository.findById(product.getCategory().getId());
         if (category.isPresent()) {
-            Category categoryDto = new Category();
-            categoryDto.setId(category.get().getId());
-            categoryDto.setName(category.get().getName());
             // don't set products here to avoid infinite recursion // Since the List of products are fetched lazily by default in JPA repositories
-            genericProductDto.setCategory(categoryDto);
+            genericProductDto.setCategoryDto(GenericCategoryDto.builder()
+                    .id(category.get().getId())
+                    .name(category.get().getName())
+                    .build());
         }
         return genericProductDto;
     }
@@ -76,9 +104,11 @@ public class SelfProductServiceImpl implements ProductService {
         Product product = new Product();
         product.setTitle(genericProductDto.getTitle());
         product.setDescription(genericProductDto.getDescription());
-        product.setCategory(genericProductDto.getCategory());
         product.setImage(genericProductDto.getImage());
         product.setPrice(genericProductDto.getPrice());
+        Category category = new Category();
+        category.setName(genericProductDto.getCategoryDto().getName());
+        product.setCategory(category);
         Product savedproduct = productRepository.save(product);
         genericProductDto.setId(savedproduct.getId());
         return genericProductDto;
@@ -93,9 +123,11 @@ public class SelfProductServiceImpl implements ProductService {
         Product product = new Product();
         product.setTitle(genericProductDto.getTitle());
         product.setDescription(genericProductDto.getDescription());
-        product.setCategory(genericProductDto.getCategory());
         product.setImage(genericProductDto.getImage());
         product.setPrice(genericProductDto.getPrice());
+        Category category = new Category();
+        category.setName(genericProductDto.getCategoryDto().getName());
+        product.setCategory(category);
         Product savedproduct = productRepository.save(product);
         genericProductDto.setId(savedproduct.getId());
         return genericProductDto;
@@ -110,9 +142,12 @@ public class SelfProductServiceImpl implements ProductService {
             genericProductDto.setId(product.get().getId());
             genericProductDto.setTitle(product.get().getTitle());
             genericProductDto.setDescription(product.get().getDescription());
-            genericProductDto.setCategory(product.get().getCategory());
             genericProductDto.setImage(product.get().getImage());
             genericProductDto.setPrice(product.get().getPrice());
+            genericProductDto.setCategoryDto(GenericCategoryDto.builder()
+                    .id(product.get().getCategory().getId())
+                    .name(product.get().getCategory().getName())
+                    .build());
             return genericProductDto;
         } else {
             throw new NotFoundException("Product not found by id: " + id);
