@@ -4,7 +4,6 @@ import dev.eshan.productservice.dtos.FakeStoreProductDto;
 import dev.eshan.productservice.dtos.GenericCategoryDto;
 import dev.eshan.productservice.dtos.GenericProductDto;
 import dev.eshan.productservice.exceptions.NotFoundException;
-import dev.eshan.productservice.model.Category;
 import dev.eshan.productservice.model.Price;
 import dev.eshan.productservice.thirdpartyclients.productservice.fakestore.FakeStoreProductServiceClient;
 import org.springframework.stereotype.Service;
@@ -65,7 +64,7 @@ public class FakeStoreProductService implements ProductService {
             price.setPrice(fakeStoreProductDto.getPrice());
             genericProductDto.setPrice(price);
             genericProductDto.setDescription(fakeStoreProductDto.getDescription());
-            genericProductDto.setCategoryDto(GenericCategoryDto.builder().name(fakeStoreProductDto.getCategory()).build());
+            genericProductDto.setCategory(GenericCategoryDto.builder().name(fakeStoreProductDto.getCategory()).build());
             genericProductDto.setImage(fakeStoreProductDto.getImage());
         }
         return genericProductDto;

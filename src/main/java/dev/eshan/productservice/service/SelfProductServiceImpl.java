@@ -2,12 +2,15 @@ package dev.eshan.productservice.service;
 
 import dev.eshan.productservice.dtos.GenericCategoryDto;
 import dev.eshan.productservice.dtos.GenericProductDto;
+import dev.eshan.productservice.events.EventName;
+import dev.eshan.productservice.events.ProductEvent;
 import dev.eshan.productservice.exceptions.NotFoundException;
 import dev.eshan.productservice.model.Category;
 import dev.eshan.productservice.model.Product;
 import dev.eshan.productservice.repositories.CategoryRepository;
 import dev.eshan.productservice.repositories.ProductRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -16,13 +19,16 @@ import java.util.Optional;
 
 @Service("selfProductServiceImpl")
 public class SelfProductServiceImpl implements ProductService {
-    ProductRepository productRepository;
+    private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     SelfProductServiceImpl(ProductRepository productRepository,
-                           CategoryRepository categoryRepository) {
+                           CategoryRepository categoryRepository,
+                           ApplicationEventPublisher eventPublisher) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -38,7 +44,7 @@ public class SelfProductServiceImpl implements ProductService {
                 genericProductDto.setImage(product.getImage());
                 genericProductDto.setPrice(product.getPrice());
                 genericProductDtos.add(genericProductDto);
-                genericProductDto.setCategoryDto(GenericCategoryDto.builder()
+                genericProductDto.setCategory(GenericCategoryDto.builder()
                         .id(product.getCategory().getId())
                         .name(product.getCategory().getName())
                         .build());
@@ -67,7 +73,7 @@ public class SelfProductServiceImpl implements ProductService {
             genericProductDto.setDescription(product.getDescription());
             genericProductDto.setImage(product.getImage());
             genericProductDto.setPrice(product.getPrice());
-            genericProductDto.setCategoryDto(GenericCategoryDto.builder()
+            genericProductDto.setCategory(GenericCategoryDto.builder()
                     .id(product.getCategory().getId())
                     .name(product.getCategory().getName())
                     .build());
@@ -91,7 +97,7 @@ public class SelfProductServiceImpl implements ProductService {
         Optional<Category> category = categoryRepository.findById(product.getCategory().getId());
         if (category.isPresent()) {
             // don't set products here to avoid infinite recursion // Since the List of products are fetched lazily by default in JPA repositories
-            genericProductDto.setCategoryDto(GenericCategoryDto.builder()
+            genericProductDto.setCategory(GenericCategoryDto.builder()
                     .id(category.get().getId())
                     .name(category.get().getName())
                     .build());
@@ -107,11 +113,20 @@ public class SelfProductServiceImpl implements ProductService {
         product.setImage(genericProductDto.getImage());
         product.setPrice(genericProductDto.getPrice());
         Category category = new Category();
-        category.setName(genericProductDto.getCategoryDto().getName());
+        category.setName(genericProductDto.getCategory() != null ? genericProductDto.getCategory().getName() : null);
         product.setCategory(category);
         Product savedproduct = productRepository.save(product);
         genericProductDto.setId(savedproduct.getId());
+        // publish event
+        eventPublisher.publishEvent(getProductEvent(genericProductDto));
         return genericProductDto;
+    }
+
+    private ProductEvent getProductEvent(GenericProductDto genericProductDto) {
+        ProductEvent productEvent = new ProductEvent();
+        productEvent.setEventName(EventName.PRODUCT_CREATED);
+        productEvent.setProduct(genericProductDto);
+        return productEvent;
     }
 
     @Override
@@ -126,7 +141,7 @@ public class SelfProductServiceImpl implements ProductService {
         product.setImage(genericProductDto.getImage());
         product.setPrice(genericProductDto.getPrice());
         Category category = new Category();
-        category.setName(genericProductDto.getCategoryDto().getName());
+        category.setName(genericProductDto.getCategory().getName());
         product.setCategory(category);
         Product savedproduct = productRepository.save(product);
         genericProductDto.setId(savedproduct.getId());
@@ -144,7 +159,7 @@ public class SelfProductServiceImpl implements ProductService {
             genericProductDto.setDescription(product.get().getDescription());
             genericProductDto.setImage(product.get().getImage());
             genericProductDto.setPrice(product.get().getPrice());
-            genericProductDto.setCategoryDto(GenericCategoryDto.builder()
+            genericProductDto.setCategory(GenericCategoryDto.builder()
                     .id(product.get().getCategory().getId())
                     .name(product.get().getCategory().getName())
                     .build());

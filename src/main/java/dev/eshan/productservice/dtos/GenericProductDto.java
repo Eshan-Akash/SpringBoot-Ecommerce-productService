@@ -1,7 +1,6 @@
 package dev.eshan.productservice.dtos;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import dev.eshan.productservice.model.Category;
 import dev.eshan.productservice.model.Price;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
@@ -13,7 +12,7 @@ public class GenericProductDto {
     String id;
     String title;
     String description;
-    GenericCategoryDto categoryDto;
+    GenericCategoryDto category;
     String image;
     Price price;
 }
