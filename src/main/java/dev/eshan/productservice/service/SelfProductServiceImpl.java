@@ -54,8 +54,31 @@ public class SelfProductServiceImpl implements ProductService {
     }
 
     @Override
-    public GenericProductDto getProductById(String id) throws NotFoundException {
-        return doSomething(id);
+    public GenericProductDto getProductById(String id, Long userIdTryingToAccess) throws NotFoundException {
+        return getProductFromStoreById(id);
+    }
+
+    @Transactional
+    public GenericProductDto getProductFromStoreById(String id) throws NotFoundException {
+        Optional<Product> productOptional = productRepository.findById(id);
+        Product product = productOptional.orElseThrow(() -> new NotFoundException("Product not found by id: " + id));
+
+        GenericProductDto genericProductDto = new GenericProductDto();
+        genericProductDto.setId(product.getId());
+        genericProductDto.setTitle(product.getTitle());
+        genericProductDto.setDescription(product.getDescription());
+        genericProductDto.setImage(product.getImage());
+        genericProductDto.setPrice(product.getPrice());
+
+        Optional<Category> category = categoryRepository.findById(product.getCategory().getId());
+        if (category.isPresent()) {
+            // don't set products here to avoid infinite recursion // Since the List of products are fetched lazily by default in JPA repositories
+            genericProductDto.setCategory(GenericCategoryDto.builder()
+                    .id(category.get().getId())
+                    .name(category.get().getName())
+                    .build());
+        }
+        return genericProductDto;
     }
 
     @Override
@@ -80,29 +103,6 @@ public class SelfProductServiceImpl implements ProductService {
             genericProductDtos.add(genericProductDto);
         });
         return genericProductDtos;
-    }
-
-    @Transactional
-    public GenericProductDto doSomething(String id) throws NotFoundException {
-        Optional<Product> productOptional = productRepository.findById(id);
-        Product product = productOptional.orElseThrow(() -> new NotFoundException("Product not found by id: " + id));
-
-        GenericProductDto genericProductDto = new GenericProductDto();
-        genericProductDto.setId(product.getId());
-        genericProductDto.setTitle(product.getTitle());
-        genericProductDto.setDescription(product.getDescription());
-        genericProductDto.setImage(product.getImage());
-        genericProductDto.setPrice(product.getPrice());
-
-        Optional<Category> category = categoryRepository.findById(product.getCategory().getId());
-        if (category.isPresent()) {
-            // don't set products here to avoid infinite recursion // Since the List of products are fetched lazily by default in JPA repositories
-            genericProductDto.setCategory(GenericCategoryDto.builder()
-                    .id(category.get().getId())
-                    .name(category.get().getName())
-                    .build());
-        }
-        return genericProductDto;
     }
 
     @Override
