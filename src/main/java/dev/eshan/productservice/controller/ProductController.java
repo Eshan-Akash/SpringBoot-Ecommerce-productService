@@ -32,7 +32,7 @@ public class ProductController {
         this.tokenValidator = tokenValidator;
     }
 
-    @GetMapping("/")
+    @GetMapping
     public List<GenericProductDto> getAllProducts() {
         return productService.getProducts();
     }

@@ -34,7 +34,7 @@ public class TokenValidator {
 
     @Data
     @Builder
-    public class ValidateTokenRequestDto {
+    public static class ValidateTokenRequestDto {
         private Long userId;
         private String token;
     }
