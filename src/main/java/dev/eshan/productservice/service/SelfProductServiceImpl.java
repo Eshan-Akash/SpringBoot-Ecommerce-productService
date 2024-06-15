@@ -11,6 +11,8 @@ import dev.eshan.productservice.repositories.CategoryRepository;
 import dev.eshan.productservice.repositories.ProductRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -33,6 +35,12 @@ public class SelfProductServiceImpl implements ProductService {
 
     @Override
     public List<GenericProductDto> getProducts() {
+//        Optional<List<Product>> products = Optional.of(productRepository.getAll(
+//                Pageable.ofSize(10)
+//        ));
+//
+//        PageRequest pageRequest = PageRequest.of(2, 10);
+//        Optional<List<Product>> products2 = Optional.of(productRepository.getAll(pageRequest));
         Optional<List<Product>> products = Optional.of(productRepository.findAll());
         List<GenericProductDto> genericProductDtos = new ArrayList<>();
         if (products.isPresent()) {

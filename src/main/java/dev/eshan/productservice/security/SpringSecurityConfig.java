@@ -32,6 +32,8 @@ public class SpringSecurityConfig {
 //                .formLogin(Customizer.withDefaults());
 //                .exceptionHandling()
 //                .authenticationEntryPoint(customAuthenticationEntryPoint);
+                .cors().disable()
+                .csrf().disable()
         ;
 
         return http.build();
