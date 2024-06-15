@@ -13,19 +13,23 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class SpringSecurityConfig {
-//    @Autowired
+    //    @Autowired
 //    private CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     @Bean
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http)
             throws Exception {
         http
                 .authorizeHttpRequests((authorize) -> authorize
-                                .requestMatchers("/api/v1/products").hasAuthority("admin")
-//                        .anyRequest().permitAll()
+                        .requestMatchers("/api/v1/products").hasAuthority("admin")
+                        .anyRequest().authenticated()
+                )
+                .oauth2ResourceServer((oauth2) -> oauth2.jwt(
+                        jwtConfigurer -> jwtConfigurer.jwtAuthenticationConverter(new CustomJwtAuthenticationConverter())
+                        )
                 )
                 // Form login handles the redirect to the login page from the
                 // authorization server filter chain
-                .formLogin(Customizer.withDefaults())
+//                .formLogin(Customizer.withDefaults());
 //                .exceptionHandling()
 //                .authenticationEntryPoint(customAuthenticationEntryPoint);
         ;
