@@ -3,6 +3,7 @@ package dev.eshan.productservice.service;
 import dev.eshan.productservice.dtos.GenericProductDto;
 import dev.eshan.productservice.dtos.SortParameter;
 import dev.eshan.productservice.model.Product;
+import dev.eshan.productservice.repositories.ProductElasticSearchRepository;
 import dev.eshan.productservice.repositories.ProductRepository;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
@@ -12,10 +13,15 @@ import java.util.List;
 
 @Service
 public class SearchService {
-    private ProductRepository productRepository;
+//    private ProductRepository productRepository;
+    private ProductElasticSearchRepository elasticSearchRepository;
 
-    public SearchService(ProductRepository productRepository) {
-        this.productRepository = productRepository;
+//    public SearchService(ProductRepository productRepository) {
+//        this.productRepository = productRepository;
+//    }
+
+    public SearchService(ProductElasticSearchRepository elasticSearchRepository) {
+        this.elasticSearchRepository = elasticSearchRepository;
     }
 
     public Page<GenericProductDto> searchProducts(String query, int pageNumber, int sizeOfEachPage, List<SortParameter> sortByParameters) {
@@ -33,7 +39,8 @@ public class SearchService {
         }
 
         Pageable pageable = PageRequest.of(pageNumber, sizeOfEachPage, sort);
-        Page<Product> productsPage = productRepository.findAllByTitleContaining(query, pageable);
+//        Page<Product> productsPage = productRepository.findAllByTitleContaining(query, pageable);
+        Page<Product> productsPage = elasticSearchRepository.findAllByTitleContaining(query, pageable);
         List<Product> products = productsPage.getContent();
 
         List<GenericProductDto> genericProductDtos = new ArrayList<>();

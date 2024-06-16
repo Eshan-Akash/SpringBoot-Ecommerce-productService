@@ -74,6 +74,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.opensearch.client/spring-data-opensearch-starter -->
+		<dependency>
+			<groupId>org.opensearch.client</groupId>
+			<artifactId>spring-data-opensearch-starter</artifactId>
+			<version>1.5.0</version>
+		</dependency>
 
 	</dependencies>
 
