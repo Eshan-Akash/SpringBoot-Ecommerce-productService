@@ -1,11 +1,10 @@
 package dev.eshan.productservice.service;
 
 import dev.eshan.productservice.dtos.GenericProductDto;
+import dev.eshan.productservice.dtos.SortParameter;
 import dev.eshan.productservice.model.Product;
 import dev.eshan.productservice.repositories.ProductRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -19,7 +18,21 @@ public class SearchService {
         this.productRepository = productRepository;
     }
 
-    public Page<GenericProductDto> searchProducts(String query, Pageable pageable) {
+    public Page<GenericProductDto> searchProducts(String query, int pageNumber, int sizeOfEachPage, List<SortParameter> sortByParameters) {
+        Sort sort;
+        if (sortByParameters.get(0).getSortType().equalsIgnoreCase("DESC"))
+            sort = Sort.by(Sort.Direction.DESC, sortByParameters.toArray(new String[0]));
+        else
+            sort =  Sort.by(Sort.Direction.ASC, sortByParameters.toArray(new String[0]));
+
+        for (SortParameter sortByParameter : sortByParameters) {
+            if (sortByParameter.getSortType().equalsIgnoreCase("DESC"))
+                sort = sort.and(Sort.by(sortByParameter.getParameterName()).descending());
+            else
+                sort = sort.and(Sort.by(sortByParameter.getParameterName()));
+        }
+
+        Pageable pageable = PageRequest.of(pageNumber, sizeOfEachPage, sort);
         Page<Product> productsPage = productRepository.findAllByTitleContaining(query, pageable);
         List<Product> products = productsPage.getContent();
 
