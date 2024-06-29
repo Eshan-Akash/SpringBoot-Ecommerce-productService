@@ -1,16 +1,17 @@
 package dev.eshan.productservice.model;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.elasticsearch.annotations.Document;
 
 @Entity
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Data
 @NoArgsConstructor
+@Document(indexName = "blog")
 public class Product extends BaseModel {
     String title;
     String description;

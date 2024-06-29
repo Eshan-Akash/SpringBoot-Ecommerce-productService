@@ -8,11 +8,10 @@ import dev.eshan.productservice.exceptions.NotFoundException;
 import dev.eshan.productservice.model.Category;
 import dev.eshan.productservice.model.Product;
 import dev.eshan.productservice.repositories.CategoryRepository;
+import dev.eshan.productservice.repositories.ProductElasticSearchRepository;
 import dev.eshan.productservice.repositories.ProductRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -23,13 +22,15 @@ import java.util.Optional;
 public class SelfProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final ProductElasticSearchRepository productElasticSearchRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     SelfProductServiceImpl(ProductRepository productRepository,
                            CategoryRepository categoryRepository,
-                           ApplicationEventPublisher eventPublisher) {
+                           ProductElasticSearchRepository productElasticSearchRepository, ApplicationEventPublisher eventPublisher) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
+        this.productElasticSearchRepository = productElasticSearchRepository;
         this.eventPublisher = eventPublisher;
     }
 
@@ -124,6 +125,7 @@ public class SelfProductServiceImpl implements ProductService {
         category.setName(genericProductDto.getCategory() != null ? genericProductDto.getCategory().getName() : null);
         product.setCategory(category);
         Product savedproduct = productRepository.save(product);
+        productElasticSearchRepository.save(savedproduct);          // save in elastic search as well
         genericProductDto.setId(savedproduct.getId());
         // publish event
         eventPublisher.publishEvent(getProductEvent(genericProductDto));
