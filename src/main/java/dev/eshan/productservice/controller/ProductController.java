@@ -38,23 +38,25 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    public GenericProductDto getProductById(@Nullable @RequestHeader(HttpHeaders.AUTHORIZATION) String authToken, @PathVariable("id") String id) throws NotFoundException {
-        if (authToken == null) {
-            throw new NotFoundException("Authorization token is required");
-        }
-        Optional<JwtObject> authTokenObjOptional = Optional.empty();
-        JwtObject authTokenObj = new JwtObject();
+    public GenericProductDto getProductById(//@Nullable @RequestHeader(HttpHeaders.AUTHORIZATION) String authToken,
+                                            @PathVariable("id") String id) throws NotFoundException {
+//        if (authToken == null) {
+//            throw new NotFoundException("Authorization token is required");
+//        }
+//        Optional<JwtObject> authTokenObjOptional = Optional.empty();
+//        JwtObject authTokenObj = new JwtObject();
+//
+//        if (authToken != null) {
+//            authTokenObjOptional = tokenValidator.validateToken(authToken, authTokenObj.getUserId());
+//            if (authTokenObjOptional.isEmpty()) {
+//                // Ignore
+////                throw new NotFoundException("Invalid token");
+//            }
+//            authTokenObj = authTokenObjOptional.get();
+//        }
 
-        if (authToken != null) {
-            authTokenObjOptional = tokenValidator.validateToken(authToken, authTokenObj.getUserId());
-            if (authTokenObjOptional.isEmpty()) {
-                // Ignore
-//                throw new NotFoundException("Invalid token");
-            }
-            authTokenObj = authTokenObjOptional.get();
-        }
-
-        GenericProductDto productDto = productService.getProductById(id, authTokenObj.getUserId());
+//        GenericProductDto productDto = productService.getProductById(id, authTokenObj.getUserId());
+        GenericProductDto productDto = productService.getProductById(id, null);
         if (productDto == null) {
             throw new NotFoundException("Product not found");
         }
