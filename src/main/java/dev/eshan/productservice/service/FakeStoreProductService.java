@@ -6,6 +6,7 @@ import dev.eshan.productservice.dtos.GenericProductDto;
 import dev.eshan.productservice.exceptions.NotFoundException;
 import dev.eshan.productservice.model.Price;
 import dev.eshan.productservice.thirdpartyclients.productservice.fakestore.FakeStoreProductServiceClient;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -17,8 +18,11 @@ public class FakeStoreProductService implements ProductService {
 
     private FakeStoreProductServiceClient fakeStoreProductServiceClient;
 
-    public FakeStoreProductService(FakeStoreProductServiceClient fakeStoreProductServiceClient) {
+    private RedisTemplate<String, Object> redisTemplate;
+
+    public FakeStoreProductService(FakeStoreProductServiceClient fakeStoreProductServiceClient, RedisTemplate<String, Object> redisTemplate) {
         this.fakeStoreProductServiceClient = fakeStoreProductServiceClient;
+        this.redisTemplate = redisTemplate;
     }
 
     @Override
@@ -32,7 +36,18 @@ public class FakeStoreProductService implements ProductService {
 
     @Override
     public GenericProductDto getProductById(String id, Long userIdTryingToAccess) throws NotFoundException {
-        return convertFakeStoreProductDtoToGenericProductDto(fakeStoreProductServiceClient.getProductById(Integer.parseInt(id)));
+        return getProductById(id);
+    }
+
+    private GenericProductDto getProductById(String id) throws NotFoundException {
+        GenericProductDto genericProductDto = (GenericProductDto) redisTemplate.opsForHash().get("PRODUCT", id);
+        if (genericProductDto != null) {
+            return genericProductDto;
+        }
+        GenericProductDto genericProductDto1 = convertFakeStoreProductDtoToGenericProductDto(
+                fakeStoreProductServiceClient.getProductById(Integer.parseInt(id)));
+        redisTemplate.opsForHash().put("PRODUCT", id, genericProductDto1);
+        return genericProductDto1;
     }
 
     @Override

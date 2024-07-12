@@ -20,8 +20,8 @@ public class SpringSecurityConfig {
             throws Exception {
         http
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/api/v1/products").hasAuthority("admin")
-                        .anyRequest().authenticated()
+                        .requestMatchers("/api/v1/products").permitAll()
+                        .anyRequest().permitAll()
                 )
                 .oauth2ResourceServer((oauth2) -> oauth2.jwt(
                         jwtConfigurer -> jwtConfigurer.jwtAuthenticationConverter(new CustomJwtAuthenticationConverter())
